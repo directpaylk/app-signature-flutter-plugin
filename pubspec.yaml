@@ -1,6 +1,6 @@
 name: app_signature
-description: A new flutter plugin project.
-version: 0.0.1
+description: Retrive app signature for tamper detection.
+version: 0.1.0
 author:
 homepage:
 
