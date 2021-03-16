@@ -27,10 +27,10 @@ public class SwiftAppSignaturePlugin: NSObject, FlutterPlugin {
 // Tip: Your application may retrieve this value from the server
     // let hashValue = IntegrityChecker.getMachOFileHashValue(.default)
     // let hashValue = IntegrityChecker.getMachOFileHashValue(.custom("Flutter"))
-      let hashValue = IntegrityChecker.getAppHash()
+      let hashValue = IntegrityChecker.getAppHash() 
     // let libs : [String] = IntegrityChecker.findLoadedDylibs()!;
     
-    result((hashValue ?? ""))
+    result(hashValue)
     
   }
 }
@@ -108,15 +108,18 @@ internal class IntegrityChecker {
 
         public static func getAppHash() -> String {
         
-        guard let path = Bundle.main.path(forResource: "Runner", ofType: "") else { return "" }
-
+        guard let path = Bundle.main.path(forResource: "embedded", ofType: "mobileprovision") else { return "error" }
         let url = URL(fileURLWithPath: path)
         
         if FileManager.default.fileExists(atPath: url.path) {
-            if let data = FileManager.default.contents(atPath: url.path) {
-                
+            if var data = FileManager.default.contents(atPath: url.path) {
+               
                 // Hash: SHA256
                 var hash = [UInt8](repeating: 0, count: Int(CC_SHA256_DIGEST_LENGTH))
+              
+                data.append((Bundle.main.bundleIdentifier ?? "").data(using: .utf8)!)
+                data.append((Bundle.main.infoDictionary?["CFBundleVersion"] as! String).data(using: .utf8)!)
+            
                 data.withUnsafeBytes {
                     _ = CC_SHA256($0.baseAddress, CC_LONG(data.count), &hash)
                 }
@@ -125,7 +128,7 @@ internal class IntegrityChecker {
             }
         }
         
-        return ""
+        return "failed"
     }
     
     private static func checkMobileProvision(_ expectedSha256Value: String) -> Bool {
