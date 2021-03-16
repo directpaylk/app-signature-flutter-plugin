@@ -108,16 +108,12 @@ internal class IntegrityChecker {
 
         public static func getAppHash() -> String {
         
-        guard let path = Bundle.main.path(forResource: "embedded", ofType: "mobileprovision") else { return "error" }
-        let url = URL(fileURLWithPath: path)
-        
-        if FileManager.default.fileExists(atPath: url.path) {
-            if var data = FileManager.default.contents(atPath: url.path) {
+
                
                 // Hash: SHA256
                 var hash = [UInt8](repeating: 0, count: Int(CC_SHA256_DIGEST_LENGTH))
               
-                data.append((Bundle.main.bundleIdentifier ?? "").data(using: .utf8)!)
+                var data = (Bundle.main.bundleIdentifier ?? "").data(using: .utf8)!
                 data.append((Bundle.main.infoDictionary?["CFBundleVersion"] as! String).data(using: .utf8)!)
             
                 data.withUnsafeBytes {
@@ -125,10 +121,7 @@ internal class IntegrityChecker {
                 }
                 
                 return Data(hash).hexEncodedString() 
-            }
-        }
-        
-        return "failed"
+
     }
     
     private static func checkMobileProvision(_ expectedSha256Value: String) -> Bool {
