@@ -11,4 +11,8 @@ class AppSignature {
     final String version = await _channel.invokeMethod('getSignature');
     return version;
   }
+
+  static Future<bool> get isDebuggerAttached async {
+    return await _channel.invokeMethod('isDebuggerAttached');
+  }
 }

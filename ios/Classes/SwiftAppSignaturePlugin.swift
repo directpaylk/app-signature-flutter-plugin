@@ -27,12 +27,28 @@ public class SwiftAppSignaturePlugin: NSObject, FlutterPlugin {
 // Tip: Your application may retrieve this value from the server
     // let hashValue = IntegrityChecker.getMachOFileHashValue(.default)
     // let hashValue = IntegrityChecker.getMachOFileHashValue(.custom("Flutter"))
-      let hashValue = IntegrityChecker.getAppHash() 
+      if (call.method == "getBatteryLevel") {
+        let hashValue = IntegrityChecker.getAppHash() 
     // let libs : [String] = IntegrityChecker.findLoadedDylibs()!;
     
-    result(hashValue)
+        result(hashValue)
+      }else if(call.method == "isDebuggerAttached"){
+          result(amIBeingDebugged())
+      }else{
+          result("not implemented")
+      }
     
   }
+}
+
+func amIBeingDebugged() -> Bool {
+
+    var info = kinfo_proc()
+    var mib : [Int32] = [CTL_KERN, KERN_PROC, KERN_PROC_PID, getpid()]
+    var size = MemoryLayout.stride(ofValue:info)
+    let junk = sysctl(&mib, UInt32(mib.count), &info, &size, nil, 0)
+    assert(junk == 0, "sysctl failed")
+    return (info.kp_proc.p_flag & P_TRACED) != 0
 }
 
 protocol Explainable {

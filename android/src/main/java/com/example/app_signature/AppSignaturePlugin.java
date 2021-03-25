@@ -2,9 +2,11 @@ package com.example.app_signature;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
+import android.os.Debug;
 import android.util.Base64;
 
 import androidx.annotation.NonNull;
@@ -46,9 +48,19 @@ public class AppSignaturePlugin implements FlutterPlugin, MethodCallHandler, Act
   public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
     if (call.method.equals("getSignature")) {
       result.success(getAppSignature(activity.getApplicationContext()));
+    }else if(call.method.equals("isDebuggerAttached")) {
+      result.success(isDebuggerAttached() || isDebuggable(activity.getApplicationContext()) );
     } else {
       result.notImplemented();
     }
+  }
+  public static boolean isDebuggable(Context context){
+
+    return ((context.getApplicationContext().getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0);
+
+  }
+  private boolean isDebuggerAttached(){
+    return Debug.isDebuggerConnected();
   }
   private String getAppSignature(Context context) {
 
