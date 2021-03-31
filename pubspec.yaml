@@ -1,6 +1,6 @@
 name: app_signature
 description: Retrive app signature for tamper detection.
-version: 0.3.0
+version: 0.3.1
 author:
 homepage:
 

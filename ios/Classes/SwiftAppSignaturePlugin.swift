@@ -27,7 +27,7 @@ public class SwiftAppSignaturePlugin: NSObject, FlutterPlugin {
 // Tip: Your application may retrieve this value from the server
     // let hashValue = IntegrityChecker.getMachOFileHashValue(.default)
     // let hashValue = IntegrityChecker.getMachOFileHashValue(.custom("Flutter"))
-      if (call.method == "getBatteryLevel") {
+      if (call.method == "getSignature") {
         let hashValue = IntegrityChecker.getAppHash() 
     // let libs : [String] = IntegrityChecker.findLoadedDylibs()!;
     
