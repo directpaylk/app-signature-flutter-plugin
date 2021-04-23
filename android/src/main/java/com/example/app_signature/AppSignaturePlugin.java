@@ -61,7 +61,7 @@ public class AppSignaturePlugin implements FlutterPlugin, MethodCallHandler, Act
 
   }
   private boolean isDebugOn(Context context){
-    if(Settings.Secure.getInt(context.getContentResolver(), Settings.Secure.ADB_ENABLED, 0) == 1) {
+    if(Settings.Secure.getInt(context.getContentResolver(), Settings.Global.ADB_ENABLED, 0) == 1) {
       return true;
     } 
     return false;
