@@ -75,51 +75,49 @@ public class AppSignaturePlugin implements FlutterPlugin, MethodCallHandler, Act
     try {
       PackageInfo info = context.getPackageManager().getPackageInfo(context.getPackageName(), PackageManager.GET_META_DATA);
       File file = new File(info.applicationInfo.sourceDir);
-      hash = calculateMD5(file);
-    } catch (PackageManager.NameNotFoundException e) {
+      MessageDigest shaDigest = MessageDigest.getInstance("SHA-256");
+      hash = getFileChecksum(shaDigest, file);
+      //hash = calculateMD5(file);
+    } catch (PackageManager.NameNotFoundException | NoSuchAlgorithmException | IOException e) {
       e.printStackTrace();
     }
 
     return hash;
     
     }
-  private String calculateMD5(File file) {
 
-    MessageDigest digest;
-
-    try {
-      digest = MessageDigest.getInstance("MD5");
-    } catch (NoSuchAlgorithmException e) {
-      return null;
+    private static String getFileChecksum(MessageDigest digest, File file) throws IOException
+    {
+    //Get file input stream for reading the file content
+    FileInputStream fis = new FileInputStream(file);
+     
+    //Create byte array to read data in chunks
+    byte[] byteArray = new byte[1024];
+    int bytesCount = 0; 
+      
+    //Read file data and update in message digest
+    while ((bytesCount = fis.read(byteArray)) != -1) {
+        digest.update(byteArray, 0, bytesCount);
+    };
+     
+    //close the stream; We don't need it now.
+    fis.close();
+     
+    //Get the hash's bytes
+    byte[] bytes = digest.digest();
+     
+    //This bytes[] has bytes in decimal format;
+    //Convert it to hexadecimal format
+    StringBuilder sb = new StringBuilder();
+    for(int i=0; i< bytes.length ;i++)
+    {
+        sb.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
     }
-
-    InputStream is;
-    try {
-      is = new FileInputStream(file);
-    } catch (FileNotFoundException e) {
-      return null;
-    }
-
-    byte[] buffer = new byte[8192];
-    int read;
-    try {
-      while ((read = is.read(buffer)) > 0) {
-        digest.update(buffer, 0, read);
-      }
-      byte[] md5sum = digest.digest();
-      BigInteger bigInt = new BigInteger(1, md5sum);
-      String output = bigInt.toString(16);
-      output = String.format("%32s", output).replace(' ', '0');
-      return output;
-    } catch (IOException e) {
-      throw new RuntimeException("Unable to process file for MD5", e);
-    } finally {
-      try {
-        is.close();
-      } catch (IOException e) {
-      }
-    }
+     
+    //return complete hash
+   return sb.toString();
   }
+ 
   @Override
   public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
     channel.setMethodCallHandler(null);
